@@ -20,7 +20,7 @@ public class MainManager : MonoBehaviour
     
     private bool m_GameOver = false;
     private int MaxScore;
-    private int MaxScoreReturned;
+    private int MaxScoreReturned = 0;
 
 
     
@@ -63,6 +63,7 @@ public class MainManager : MonoBehaviour
         {
             if (Input.GetKeyDown(KeyCode.Space))
             {
+                ScoreTexto.text = $"Best Score : {LoadScore()}";
                 SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
             }
         }
@@ -73,18 +74,14 @@ public class MainManager : MonoBehaviour
         m_Points += point;
         ScoreText.text = $"Score : {m_Points}";
         MaxScore = m_Points;
-        Debug.Log(MaxScore);
     }
 
     public void GameOver()
     {
-        //Checking if maxscore is higher than saved score
-
-        Debug.Log("Max "+MaxScore+" Saved as Max "+LoadScore()+" Score saved");
+        //Checking if maxscore is higher than saved score and saving it
         if (MaxScore>LoadScore())
         {
             SaveScore();
-            
         }
         
         m_GameOver = true;
@@ -116,8 +113,7 @@ public class MainManager : MonoBehaviour
             SaveData data = JsonUtility.FromJson<SaveData>(json);
 
             MaxScoreReturned = data.MaxScore;
-            
-            
+
         }
         return MaxScoreReturned;
     }
