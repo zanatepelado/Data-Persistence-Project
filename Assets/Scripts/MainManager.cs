@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using System.IO;
 
 public class MainManager : MonoBehaviour
 {
@@ -11,12 +12,16 @@ public class MainManager : MonoBehaviour
     public Rigidbody Ball;
 
     public Text ScoreText;
+    public Text ScoreTexto;
     public GameObject GameOverText;
     
     private bool m_Started = false;
     private int m_Points;
     
     private bool m_GameOver = false;
+    private int MaxScore;
+    private int MaxScoreReturned;
+
 
     
     // Start is called before the first frame update
@@ -36,6 +41,7 @@ public class MainManager : MonoBehaviour
                 brick.onDestroyed.AddListener(AddPoint);
             }
         }
+        ScoreTexto.text = $"Best Score : {LoadScore()}";
     }
 
     private void Update()
@@ -66,11 +72,53 @@ public class MainManager : MonoBehaviour
     {
         m_Points += point;
         ScoreText.text = $"Score : {m_Points}";
+        MaxScore = m_Points;
+        Debug.Log(MaxScore);
     }
 
     public void GameOver()
     {
+        //Checking if maxscore is higher than saved score
+
+        Debug.Log("Max "+MaxScore+" Saved as Max "+LoadScore()+" Score saved");
+        if (MaxScore>LoadScore())
+        {
+            SaveScore();
+            
+        }
+        
         m_GameOver = true;
         GameOverText.SetActive(true);
+    }
+
+    [System.Serializable]
+    class SaveData
+    {
+        public int MaxScore;
+    }
+
+    public void SaveScore()
+    {
+        SaveData data = new SaveData();
+        data.MaxScore = MaxScore;
+
+        string json = JsonUtility.ToJson(data);
+        File.WriteAllText(Application.persistentDataPath + "/savefile.json", json);
+        
+    }
+
+    int LoadScore()
+    {
+        string  path = Application.persistentDataPath + "/savefile.json";
+        if (File.Exists(path))
+        {
+            string json = File.ReadAllText(path);
+            SaveData data = JsonUtility.FromJson<SaveData>(json);
+
+            MaxScoreReturned = data.MaxScore;
+            
+            
+        }
+        return MaxScoreReturned;
     }
 }
